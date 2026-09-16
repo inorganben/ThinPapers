@@ -677,8 +677,8 @@ eqn .katex-display {
   background: var(--bg);
 }
 
-/* 字体授权说明：贴近底部色带的小字注释 */
-.font-credit {
+/* 首页底部的来源署名：贴近底部色带的小字注释 */
+.site-credit {
   margin: calc(3 * var(--grid)) 0 0;
   font-size: 0.72rem;
   line-height: 1.7;
@@ -688,8 +688,8 @@ eqn .katex-display {
 /* 首页：注释与色带之间只留 0.4rem（main 下边距清零，footer 上边距收到 0.4rem） */
 .page.home-page { padding-bottom: 0; }
 .page.home-page + .site-footer { padding-top: 1.5rem; }
-.font-credit a { color: var(--muted); text-decoration: underline; }
-.font-credit a:hover { color: var(--text); }
+.site-credit a { color: var(--muted); text-decoration: underline; }
+.site-credit a:hover { color: var(--text); }
 
 /* ---------- 底部主题切换线：通栏 80vw（不随正文列宽），直角 ---------- */
 .theme-line {
