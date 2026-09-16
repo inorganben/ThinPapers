@@ -3,15 +3,15 @@ layout: base.njk
 bodyClass: home
 ---
 {# 首页不走 Markdown：它是全站交互最多的一页。简介直接写在这里，
-   头像换成 src/images/ 下你自己的图即可。 #}
+   头像换成 src/images/ 下你自己的图。 #}
 <section class="hero">
   <div class="hero-left">
     <img class="avatar" src="{{ '/images/logo-tp.png' | asset }}" alt="头像">
   </div>
   <div class="intro">
-    <p>这里是 ThinPapers，一个极简的中文写作模板。</p>
-    <p>文章放在 <code>src/posts/</code>，写 Markdown 就行；标题取正文第一个 <code>#</code> 一级标题，列表、合集、时间线都由构建期自动生成，不需要在 front matter 里重复填一遍。</p>
-    <p>这一页是 <code>src/index.njk</code>，这段简介换成你自己的话就好。</p>
+    <p>本站是 ThinPapers，一个基于 Eleventy 的极简中文写作模板。</p>
+    <p>文章以 Markdown 撰写，置于 <code>src/posts/</code> 目录下。标题取自正文的第一个一级标题，列表、合集与时间线均在构建期生成，无需在 front matter 中重复填写。</p>
+    <p>本页由 <code>src/index.njk</code> 渲染，这段简介可替换为你要展示的内容。</p>
 
     <p>使用 11ty，希望 SSG 的构建不依赖模板语言，以及轻量 <a class="ssg-icon" href="https://www.11ty.dev" rel="noopener" target="_blank" title="Eleventy"><img src="{{ '/images/T3q0klu3ui-120.avif' | asset }}" alt="11ty"></a></p>
 
