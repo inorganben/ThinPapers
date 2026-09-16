@@ -1,5 +1,6 @@
 module.exports = {
-  name: "ThinPapers",
+  // 站名会出现在 TopBar（左上角）与浏览器标签页标题里
+  name: "淡紙 ThinPapers",
   description: "薄纸几张，写点东西。",
   // 备案信息：留空则页脚不显示这一行（海外部署不需要）
   icp: "",
