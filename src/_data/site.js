@@ -16,7 +16,7 @@ module.exports = {
   ],
   // 主页社交链接（按展示顺序）：图标放 src/images/，url 改成自己的即可
   social: [
-    { name: "GitHub", icon: "/images/github.svg", url: "https://github.com/" },
+    { name: "GitHub", icon: "/images/github.svg", url: "https://github.com/inorganben/ThinPapers" },
     { name: "Gmail", icon: "/images/gmail.svg", url: "mailto:you@example.com" },
     { name: "Outlook", icon: "/images/selfhst--microsoft-outlook-dark.svg", url: "mailto:you@outlook.com" },
     { name: "Bilibili", icon: "/images/bilibili.svg", url: "https://space.bilibili.com/" },
