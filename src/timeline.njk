@@ -1,0 +1,14 @@
+---
+layout: base.njk
+permalink: /timeline/index.html
+---
+{%- set tlYears = collections.post | byYear %}
+{%- set latest = tlYears[0] %}
+{%- if latest %}
+{%- set target = ('/timeline/' + latest.year + '/') | url %}
+<meta http-equiv="refresh" content="0;url={{ target }}">
+<script>location.replace("{{ target }}");</script>
+<p class="empty">时间线已按年份拆分：<a href="{{ target }}">前往 {{ latest.year }} 年 →</a></p>
+{%- else %}
+<p class="empty">这个合集还没有文章。</p>
+{%- endif %}

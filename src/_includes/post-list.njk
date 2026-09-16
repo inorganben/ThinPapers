@@ -1,0 +1,20 @@
+<ul class="post-list">
+  {%- for p in posts %}
+  {%- set pv = p.templateContent | previews %}
+  <li class="post-item{% if p.data.pinned %} pinned{% endif %}"{% if p.data.date %} data-month="{{ p.data.date | getMonth }}"{% endif %}>
+    {%- if showDate and p.data.date %}
+    <time class="post-item-date" datetime="{{ p.data.date | isoDate }}">{{ p.data.date | isoDate }}</time>
+    {%- endif %}
+    <a class="post-item-title" href="{{ p.url | url }}">{{ p.templateContent | extractTitle }}</a>
+    {%- if pv.items | length %}
+    {# 预览：正文前五张图。尺寸由过滤器算好（--k 行高、--w 单张宽度，单位都是正方形边长），
+       这里只负责乘 --thumb-s。这排图不可点：列表里滑动容易误触，看原图去文章里点 #}
+    <div class="post-thumbs" style="--k:{{ pv.k }}">
+      {%- for t in pv.items %}
+      <img class="post-thumb" src="{{ t.thumb }}" style="--w:{{ t.w }}" alt="{{ t.alt }}" loading="lazy" decoding="async">
+      {%- endfor %}
+    </div>
+    {%- endif %}
+  </li>
+  {%- endfor %}
+</ul>

@@ -1,0 +1,12 @@
+node_modules/
+_site/
+.DS_Store
+__pycache__/
+
+# 中文字体：源文件自行下载，子集产物由 npm run font 生成，都不入库
+src/fonts/*.ttf
+src/fonts/dist/
+
+# 图片素材：原始高分辨率大图不入库，压过的版本放 src/mdimgs/
+IMG_*.jpg
+testimg/

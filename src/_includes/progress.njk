@@ -1,0 +1,4 @@
+{# 顶部进度条：贴在 TopBar 下边缘。页顶整条全满，越往下滑越短（左端固定、
+   右端往左收），到页底全无。滚动逻辑见 /js/progress.js #}
+<div class="top-progress" aria-hidden="true"><span class="top-progress-bar" id="top-progress"></span></div>
+<script src="{{ '/js/progress.js' | url }}" defer></script>

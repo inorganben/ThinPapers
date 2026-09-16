@@ -1,0 +1,19 @@
+---
+layout: base.njk
+pagination:
+  # 按年分类的合集，根地址不落地内容，直接跳到最新一年（与 /timeline/ 同一做法）
+  data: collections.yearTopics
+  size: 1
+  alias: topic
+permalink: /collections/{{ topic.slug }}/index.html
+---
+{%- set years = collections.post | inCollection(topic.slug) | byYear %}
+{%- if years | length %}
+{%- set target = ('/collections/' + topic.slug + '/' + years[0].year + '/') | url %}
+<meta http-equiv="refresh" content="0;url={{ target }}">
+<script>location.replace("{{ target }}");</script>
+<p class="empty">「{{ topic.name }}」已按年份拆分：<a href="{{ target }}">前往 {{ years[0].year }} 年 →</a></p>
+{%- else %}
+<h1 class="page-title">{{ topic.name }}</h1>
+<p class="empty">这个合集还没有文章。</p>
+{%- endif %}

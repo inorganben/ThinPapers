@@ -1,0 +1,29 @@
+---
+layout: base.njk
+bodyClass: collection
+progress: true
+pagination:
+  # topics.json 里 byYear: true 的合集：一年一页（分组在 eleventy.config.js 的 collectionYears 里做好）
+  data: collections.collectionYears
+  size: 1
+  alias: cy
+permalink: /collections/{{ cy.topic.slug }}/{{ cy.year }}/index.html
+---
+<h1 class="page-title">{{ cy.topic.name }} · {{ cy.year }}</h1>
+
+{%- set posts = cy.items %}
+{# byYear 给出的年内顺序已是新→旧；合集默认老文章在上，所以要反过来 #}
+{%- if not cy.topic.newestFirst %}
+{%- set posts = posts | reverse %}
+{%- endif %}
+{# 置顶只在它自己那一年的页里排到最前 #}
+{%- set posts = posts | pinFirst %}
+{%- set showDate = true %}
+{% include "post-list.njk" %}
+
+{# 底部年份切换：与该合集可用的年份一致，样式与时间线同一套 #}
+{%- set years = collections.post | inCollection(cy.topic.slug) | byYear %}
+{%- set current = cy.year %}
+{%- set base = "/collections/" + cy.topic.slug + "/" %}
+{%- set navLabel = cy.topic.name + " 按年份切换" %}
+{% include "year-nav.njk" %}

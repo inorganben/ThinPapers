@@ -1,0 +1,26 @@
+---
+layout: base.njk
+bodyClass: collection
+progress: true
+pagination:
+  # 只有一页列完的合集走这里；topics.json 里 byYear: true 的合集按年拆页，见 collection-year.njk
+  data: collections.plainTopics
+  size: 1
+  alias: topic
+permalink: /collections/{{ topic.slug }}/index.html
+---
+<h1 class="page-title">{{ topic.name }}</h1>
+
+{%- set posts = collections.post | inCollection(topic.slug) %}
+{# 默认老文章在上（Eleventy 集合按日期升序）；topics.json 里 newestFirst: true 则新在前 #}
+{%- if topic.newestFirst %}
+{%- set posts = posts | reverse %}
+{%- endif %}
+{# 文章 front matter 里写 pinned: true 的提到最前（多个置顶之间沿用上面的顺序） #}
+{%- set posts = posts | pinFirst %}
+{%- set showDate = true %}
+{%- if posts | length == 0 %}
+<p class="empty">这个合集还没有文章。</p>
+{%- else %}
+{% include "post-list.njk" %}
+{%- endif %}

@@ -1,0 +1,9 @@
+---
+layout: base.njk
+---
+<article class="post">
+  {{ content | safe }}
+  {%- if date %}
+  <time class="post-end-date" datetime="{{ date | isoDate }}">{{ date | isoDate }}</time>
+  {%- endif %}
+</article>

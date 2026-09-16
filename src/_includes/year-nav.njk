@@ -1,0 +1,12 @@
+{# 年份切换器：小球 + 细线，标注年份后两位，当前年实心。
+   时间线页与按年分类的合集页共用（见 timeline-year.njk / collection-year.njk）。
+   使用前先 set：years（byYear 的输出）、current（当前年数字）、base（年份页前缀）、navLabel #}
+<nav class="year-nav" aria-label="{{ navLabel or '按年份切换' }}">
+  <ul class="year-line">
+    {%- for y in years %}
+    <li class="year-ball{% if y.year == current %} now{% endif %}">
+      <a href="{{ (base + y.year + '/') | url }}" title="{{ y.year }} 年">{% if y.year % 100 < 10 %}0{% endif %}{{ y.year % 100 }}</a>
+    </li>
+    {%- endfor %}
+  </ul>
+</nav>

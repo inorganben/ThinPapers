@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/png" href="{{ '/images/favicon.png' | asset }}">
+  {% set pageTitle = title or (content | extractH1) %}
+  <title>{% if pageTitle and pageTitle != site.name %}{{ pageTitle }} — {% endif %}{{ site.name }}</title>
+  {# 中文字体子集：把 LXGWNeoZhiSong.ttf 放进 src/fonts/ 并跑过 npm run font 才有，
+     没有就用系统字体栈（style.css 里的 --font-stack 末尾已备好回退） #}
+  {%- if hasFontSubset %}
+  <link rel="stylesheet" href="{{ '/fonts/dist/result.css' | url }}">
+  {%- endif %}
+  <link rel="stylesheet" href="{{ '/css/style.css' | url }}">
+  <link rel="stylesheet" href="{{ '/css/katex.min.css' | url }}">
+  <script>
+    // 防闪烁：渲染前应用记忆的主题
+    (function () {
+      var t = localStorage.getItem("theme");
+      if (t) document.documentElement.setAttribute("data-theme", t);
+    })();
+  </script>
+</head>
+<body class="{{ bodyClass }}">
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="topbar-logo" href="{{ '/' | url }}">{{ site.name }}</a>
+      <button class="bm-open" type="button" aria-label="书签">
+        <span class="bm-icon" style="--bm-icon: url('{{ '/images/shuqian.svg' | asset }}')" aria-hidden="true"></span>
+      </button>
+    </div>
+  </header>
+
+  {# 顶部进度条：front matter 里写 progress: true 的页面（合集页）才有 #}
+  {%- if progress %}
+  {% include "progress.njk" %}
+  {%- endif %}
+
+  <main class="page{% if bodyClass %} {{ bodyClass }}-page{% endif %}">
+    {{ content | safe }}
+  </main>
+
+  <footer class="site-footer">
+    {% include "theme-line.njk" %}
+    {%- if site.icp %}
+    <div class="footer-inner">
+      <a href="{{ site.icpUrl }}" rel="noopener">{{ site.icp }}</a>
+    </div>
+    {%- endif %}
+  </footer>
+
+  {% include "bookmark.njk" %}
+  <script src="{{ '/js/bookmark.js' | url }}" defer></script>
+  <script src="{{ '/js/lightbox.js' | url }}" defer></script>
+</body>
+</html>

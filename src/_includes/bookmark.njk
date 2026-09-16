@@ -1,0 +1,13 @@
+{# 书签：选区悬浮按钮 + 居中弹窗（列表由 bookmark.js 从 localStorage 渲染） #}
+<button id="bm-fab" class="bm-fab" type="button" hidden>书签</button>
+<dialog id="bm-dialog" class="bm-dialog" aria-label="书签">
+  <div class="bm-search-row">
+    <input id="bm-search" class="bm-search" type="search" placeholder="搜索书签" autocomplete="off">
+  </div>
+  <div class="bm-list" id="bm-list"></div>
+</dialog>
+<dialog id="bm-confirm" class="bm-confirm" aria-label="书签操作">
+  <p class="bm-confirm-text" id="bm-confirm-text"></p>
+  <button type="button" class="bm-confirm-item" id="bm-confirm-copy">复制</button>
+  <button type="button" class="bm-confirm-item" id="bm-confirm-del">删除书签</button>
+</dialog>

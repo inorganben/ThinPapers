@@ -1,0 +1,984 @@
+/* ================================================================
+   ThinPapers 全站样式
+   结构：流式缩放 → 设计令牌（主题变量）→ 基础排版 → 贴纸对象
+        → TopBar → 页脚 → 首页组件 → 列表 → 代码块 → 公式
+   ================================================================ */
+
+/* ---------- 流式缩放 ----------
+   字号 = 1.47vw：42 字一行恰好占 61.8vw（黄金比例），
+   clamp 封底封顶保证极端屏幕可读；网格周期用 rem，随字号等比。 */
+html {
+  font-size: clamp(16px, 1.47vw, 28px);
+}
+
+/* ---------- 设计令牌 ---------- */
+:root {
+  /* --lh × 1rem = --grid：全站统一的行高与垂直间距单位 */
+  --lh: 1.75;
+  --grid: calc(var(--lh) * 1rem);
+
+  --font-stack:
+    "LXGW Neo ZhiSong", -apple-system, BlinkMacSystemFont, "Segoe UI",
+    "Helvetica Neue", Arial, sans-serif;
+  --measure: 42rem;       /* 正文宽度：42 字/行 */
+  --topbar-h: 3.2rem;
+
+  /* 主题色条的固定色块：与当前主题无关，中性定义 */
+  --chip-cream: #ecdcbc;
+  --chip-green: #cde3d3;
+  --chip-sky: #cfe4f0;
+  --chip-purple: #d9cee9;
+  --chip-dark: #3d414c;
+}
+
+:root, [data-theme="cream"] {
+  --bg: #fdfcf9;                       /* 极浅米黄，几乎贴近纯白 */
+  --text: #34302a;
+  --muted: #8b8478;
+  --rule: rgba(168, 138, 100, 0.36);   /* 稿纸线：浅棕 */
+  --bar: rgba(253, 252, 249, 0.38);    /* TopBar 磨砂底 */
+  --hairline: rgba(52, 48, 42, 0.12);
+  /* 顶部进度条：取本主题稿纸线的色相，浓度加到能看清 */
+  --accent: rgba(168, 138, 100, 0.78);
+  --btn-border: rgba(52, 48, 42, 0.35);
+  --code-bg: #f7f6f2;                  /* 代码纸片：比更浅的页面底略沉一档以可辨 */
+  --quote-bg: rgba(255, 255, 255, 0.62); /* 引用纸片：半透明白 */
+}
+
+[data-theme="green"] {
+  --bg: #f2f8f3;                       /* 极浅绿，贴近白 */
+  --text: #2b3330;
+  --muted: #7c8b82;
+  --rule: rgba(70, 124, 92, 0.38);     /* 稿纸线：不特别深的深绿 */
+  --bar: rgba(242, 248, 243, 0.38);
+  --hairline: rgba(43, 51, 48, 0.12);
+  --accent: rgba(70, 124, 92, 0.78);
+  --btn-border: rgba(43, 51, 48, 0.35);
+  --code-bg: #f8fcf9;
+  --quote-bg: rgba(255, 255, 255, 0.62);
+}
+
+[data-theme="sky"] {
+  --bg: #f3f8fc;                       /* 极浅天蓝，贴近白 */
+  --text: #2c3238;
+  --muted: #7d8a96;
+  --rule: rgba(86, 134, 172, 0.36);    /* 稿纸线：灰蓝 */
+  --bar: rgba(243, 248, 252, 0.38);
+  --hairline: rgba(44, 50, 56, 0.12);
+  --accent: rgba(86, 134, 172, 0.78);
+  --btn-border: rgba(44, 50, 56, 0.35);
+  --code-bg: #f7fbfd;
+  --quote-bg: rgba(255, 255, 255, 0.62);
+}
+
+[data-theme="purple"] {
+  --bg: #f8f6fc;                       /* 极浅紫，贴近白 */
+  --text: #33303d;
+  --muted: #87819a;
+  --rule: rgba(122, 104, 168, 0.34);
+  --bar: rgba(248, 246, 252, 0.38);
+  --hairline: rgba(51, 48, 61, 0.12);
+  --accent: rgba(122, 104, 168, 0.78);
+  --btn-border: rgba(51, 48, 61, 0.35);
+  --code-bg: #f5f2fb;
+  --quote-bg: rgba(238, 232, 248, 0.55); /* 紫调引用纸：叠纯白在紫底上会发暖像米黄，改用淡薰衣草底 */
+}
+
+/* 深色：墨蓝灰底，不用纯黑；文字也不用纯白 */
+[data-theme="dark"] {
+  --bg: #1d1f24;
+  --text: #d3d0c8;
+  --muted: #8f8c84;
+  --rule: rgba(150, 140, 120, 0.28);
+  --bar: rgba(29, 31, 36, 0.38);
+  --hairline: rgba(211, 208, 200, 0.14);
+  --accent: rgba(190, 184, 172, 0.7);  /* 深色底上反过来用浅色，太重的色相会糊成一片 */
+  --btn-border: rgba(211, 208, 200, 0.32);
+  --code-bg: #262932;
+  --quote-bg: rgba(38, 41, 50, 0.62);
+  /* 深色下样块用各自的"深色版色卡"：色相清晰、明度中等，
+     不用滤镜压粉彩（会发灰显脏） */
+  --chip-cream: #8f7a5c;
+  --chip-green: #4e8a68;
+  --chip-sky: #4f8fb3;
+  --chip-purple: #7d6cb0;
+  --chip-inset: rgba(211, 208, 200, 0.72); /* 头像等深底描边 */
+}
+
+/* ---------- 基础排版 ---------- */
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-stack);
+  font-size: 1rem;
+  line-height: var(--grid);
+  transition: background-color 0.35s ease, color 0.35s ease;
+}
+
+/* 页面纵向滚动条隐藏（时间线有自绘进度条代劳；代码块的横向滚动条保留） */
+html { scrollbar-width: none; }             /* Firefox */
+::-webkit-scrollbar:vertical { display: none; }
+
+/* ---------- 内容列 ----------
+   --lh 与 --grid 保留为统一的垂直节奏单位（行高与间距同源），
+   但不再有稿纸线；padding 给 TopBar 让位。 */
+.page {
+  position: relative;
+  width: var(--measure);
+  max-width: 92vw;
+  margin-inline: auto;
+  padding: calc(var(--topbar-h) + 3 * var(--grid)) 0 calc(3 * var(--grid));
+  flex: 1;
+}
+
+a { color: inherit; text-decoration: none; }
+
+/* 正文链接：常驻虚线下划线——手机上不能悬浮也认得出，
+   虚线也与书签文字的实线稿纸线（.bm-mark）区分开。
+   只作用于正文容器（文章页 .post、首页简介 .intro），
+   标题、合集列表、时间线圆球等不受影响 */
+.post a:not(.ssg-icon):not(.social-link),
+.intro a:not(.ssg-icon):not(.social-link) {
+  text-decoration-line: underline;
+  text-decoration-style: dashed;
+  text-decoration-color: var(--muted);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.24em;
+}
+.post a:not(.ssg-icon):not(.social-link):hover,
+.intro a:not(.ssg-icon):not(.social-link):hover { text-decoration-color: var(--text); }
+
+/* ---------- 文字元素：垂直节奏统一到 --grid ---------- */
+p { margin: 0 0 var(--grid); }
+
+h1 {
+  font-size: 1.35rem;
+  line-height: var(--grid);
+  margin: 0 0 var(--grid);
+}
+h2 {
+  font-size: 1.2rem;
+  line-height: var(--grid);
+  margin: var(--grid) 0 0;
+}
+h3 {
+  font-size: 1.05rem;
+  line-height: var(--grid);
+  margin: var(--grid) 0 0;
+}
+h4, h5, h6 {
+  line-height: var(--grid);
+  margin: var(--grid) 0 0;
+}
+
+ul, ol {
+  margin: 0 0 var(--grid);
+  padding: 0;
+  list-style: none;
+  counter-reset: li;
+}
+li {
+  position: relative;
+  padding-left: 1.8em;
+}
+li::before {
+  position: absolute;
+  left: 0.5em;
+  color: var(--muted);
+}
+ul > li::before { content: "·"; }
+ol > li { counter-increment: li; }
+ol > li::before { content: counter(li) "."; }
+
+/* 分隔线：短横 · 断开 · 长横 · 断开 · 短横。
+   一条横向渐变换色画完，不用伪元素，1px 高度下不会发虚 */
+hr {
+  height: 1.5px;
+  border: 0;
+  width: 70%;
+  margin: calc(1.5 * var(--grid)) auto;
+  background: linear-gradient(
+    to right,
+    var(--hairline) 0 10px,
+    transparent 10px 18px,
+    var(--hairline) 18px calc(100% - 18px),
+    transparent calc(100% - 18px) calc(100% - 10px),
+    var(--hairline) calc(100% - 10px) 100%
+  );
+}
+
+/* ---------- 贴纸外观（无底线版本）----------
+   代码块 / 引用：浅色卡片 + 微圆角 + 细边框，左右缩进一档。 */
+pre {
+  background: var(--code-bg);
+  border: 1px solid var(--hairline);
+  border-radius: 8px;
+  margin: var(--grid) calc(var(--lh) * 1rem);
+  padding: calc(var(--grid) / 2 - 1px) 1rem;
+  overflow-x: auto;
+}
+
+pre code {
+  display: block;
+  background: transparent;
+  padding: 0;
+  border-radius: 0;
+  line-height: var(--grid);
+}
+
+/* Shiki 双主题（config 以 CSS 变量输出，defaultColor: false）：
+   必须显式把变量应用到 color 上——基础用 light，深色主题切 dark；
+   背景由本站 --code-bg 接管，压掉 Shiki 的内联背景 */
+pre.shiki { background-color: var(--code-bg) !important; }
+.shiki,
+.shiki span {
+  color: var(--shiki-light);
+}
+[data-theme="dark"] .shiki,
+[data-theme="dark"] .shiki span {
+  color: var(--shiki-dark);
+}
+
+blockquote {
+  background: var(--quote-bg);
+  border: 1px solid var(--hairline);
+  border-radius: 8px;
+  margin: var(--grid) calc(var(--lh) * 1rem);
+  padding: calc(var(--grid) / 2 - 1px) 1.25rem;
+  color: var(--muted);
+}
+blockquote p:last-child { margin-bottom: 0; }
+
+/* ---------- 行内代码 ---------- */
+code {
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 0.82em;
+  background: var(--hairline);
+  padding: 0.12em 0.35em;
+  border-radius: 4px;
+  /* 等宽字体 descent 大于正文，em 盒会沉到基线下；
+     抬高约等于垂直 padding 的量，芯片底边贴回基线 */
+  vertical-align: 0.12em;
+  line-height: 1;
+}
+
+/* ---------- 数学公式 ----------
+   KaTeX 构建期原生渲染：行内公式随行排布（浏览器原生行为），
+   块级公式独占一行、水平垂直居中。 */
+eq { display: inline; }
+
+section:has(eqn) { margin: 0; }
+
+eqn {
+  display: block;
+  margin: calc(var(--grid) / 2) 0;
+}
+
+eqn .katex-display {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+}
+
+/* ---------- 图片 ---------- */
+.page img { display: block; max-width: 100%; }
+
+/* ---------- 文章末尾日期：右下角、小字、弱化 ---------- */
+.post-end-date {
+  display: block;
+  text-align: right;
+  font-size: 0.75rem;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+  margin-top: calc(var(--grid) / 2);
+}
+
+/* ---------- TopBar：固定 + 透明磨砂 ---------- */
+.topbar {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 10;
+  background: var(--bar);
+  -webkit-backdrop-filter: blur(6px) saturate(1.5);
+  backdrop-filter: blur(6px) saturate(1.5);
+  border-bottom: 1px solid var(--hairline); /* 与正文的分隔线 */
+  transition: background-color 0.35s ease;
+}
+
+/* bar 全宽，文字贴着屏幕左边；右侧放书签图标 */
+.topbar-inner {
+  height: var(--topbar-h);
+  display: flex;
+  align-items: center;
+  padding-left: 1.4rem;
+  padding-right: 1.2rem;
+}
+
+.topbar-logo {
+  font-weight: 700;
+  font-size: 1.15rem;
+  letter-spacing: 0.02em;
+}
+.topbar-logo:hover { opacity: 0.75; }
+
+/* ---------- 顶部进度条（合集页）----------
+   贴在 TopBar 下边缘。页顶整条全满，越往下滑越短：左端固定、右端往左收，
+   到页底全无。颜色随主题走（--accent），滚动逻辑在 /js/progress.js */
+.top-progress {
+  position: fixed;
+  top: calc(var(--topbar-h) + 1px);   /* 正好落在 TopBar 那条下边框的下面 */
+  left: 0;
+  right: 0;
+  height: 2px;
+  z-index: 11;                        /* 在 TopBar 之上、时间线右缘进度条（40）之下 */
+  pointer-events: none;               /* 只是根指示线，不挡点击 */
+}
+.top-progress-bar {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+  transform: scaleX(1);               /* 默认全满（页顶的样子），JS 接管后按滚动比例收 */
+  transform-origin: left center;      /* 左端固定：收掉的是右端 */
+}
+
+/* ---------- 书签：TopBar 图标 ---------- */
+.bm-open {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  background: none;
+  border: none;
+  padding: 0.3rem;
+  cursor: pointer;
+  color: var(--text);
+  opacity: 0.8;
+  transition: opacity 0.15s;
+}
+.bm-open:hover { opacity: 0.55; }
+/* SVG 无 fill 属性本体会固定黑色，改用蒙版上色：颜色恒取 currentColor，随主题文字色变化 */
+.bm-icon {
+  display: block;
+  width: 1.35rem;
+  height: 1.35rem;
+  background-color: currentColor;
+  -webkit-mask: var(--bm-icon) no-repeat center / contain;
+  mask: var(--bm-icon) no-repeat center / contain;
+}
+
+/* 选区下方的悬浮「书签」按钮 */
+.bm-fab {
+  position: fixed;
+  z-index: 50;
+  font: inherit;
+  font-size: 0.8rem;
+  line-height: 1;
+  color: var(--bg);
+  background: var(--text);
+  border: none;
+  padding: 0.5rem 0.9rem;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
+}
+
+/* 弹窗：原生 <dialog> 居中，外部整屏高斯模糊 */
+.bm-dialog {
+  margin: auto;                       /* showModal 下保持垂直水平居中 */
+  width: min(34rem, 92vw);
+  max-height: min(30rem, 75vh);
+  padding: 0;
+  border: 1px solid var(--hairline);
+  background: var(--bg);
+  color: var(--text);
+  display: flex;
+  flex-direction: column;
+}
+/* 必须显式让未打开的 dialog 消失：上一条 display:flex 是作者样式，
+   会覆盖浏览器对 dialog:not([open]) 的 display:none，否则弹窗常驻页面 */
+.bm-dialog:not([open]) { display: none; }
+.bm-dialog::backdrop {
+  background: rgba(0, 0, 0, 0.18);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+}
+
+/* 顶部一行：搜索框，下方横线与列表分割 */
+.bm-search-row {
+  padding: 0.6rem 1rem;
+  border-bottom: 1px solid var(--hairline);
+}
+.bm-search {
+  width: 100%;
+  border: none;
+  background: none;
+  font: inherit;
+  color: var(--text);
+  outline: none;
+}
+.bm-search::placeholder { color: var(--muted); }
+.bm-search::-webkit-search-cancel-button { -webkit-appearance: none; }
+
+/* 书签列表：从新到旧，条目 = 文本 + 时间·来源 + 悬浮删除 */
+.bm-list {
+  overflow-y: auto;
+  padding: 0.3rem 1rem 0.8rem;
+}
+.bm-item {
+  position: relative;
+}
+.bm-item > a {
+  display: block;
+  padding: 0.55rem 1.6rem 0.55rem 0;
+}
+.bm-item-text {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  word-break: break-word;
+}
+.bm-item a:hover .bm-item-text { opacity: 0.7; }
+.bm-item-meta {
+  display: block;
+  margin-top: 0.2rem;
+  font-size: 0.72rem;
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.bm-del {
+  position: absolute;
+  top: 0.55rem;
+  right: 0;
+  font-size: 0.8rem;
+  line-height: 1.4;
+  color: var(--muted);
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+/* 悬浮判定放在整行而不是链接上：鼠标移到 ✕ 自身时也要保持可见 */
+.bm-item:hover .bm-del, .bm-del:focus { opacity: 1; }
+
+/* 正文中已加书签的文字：稿纸线式下划线标记，点击删除。
+   颜色用 --rule（稿纸线变量，稿纸系统撤除后此处正式继承它） */
+.bm-mark {
+  text-decoration: underline;
+  text-decoration-color: var(--rule);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.22em;
+  cursor: pointer;
+}
+.bm-mark:hover { text-decoration-color: var(--text); }
+
+.bm-empty {
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.85rem;
+  padding: 1.8rem 0 1.4rem;
+  margin: 0;
+}
+
+/* 书签操作小弹窗（不声明 display，交给 dialog 原生显隐，避免再覆盖 UA 规则） */
+.bm-confirm {
+  margin: auto;
+  width: min(22rem, 88vw);
+  padding: 1.2rem 1.3rem 0.6rem;
+  border: 1px solid var(--hairline);
+  background: var(--bg);
+  color: var(--text);
+}
+.bm-confirm::backdrop {
+  background: rgba(0, 0, 0, 0.18);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+}
+/* 顶部展示书签原文本体，最多 4 行 */
+.bm-confirm-text {
+  margin: 0 0 0.9rem;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  word-break: break-word;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 4;
+  overflow: hidden;
+}
+/* 功能列表：复制 / 删除书签，纵向排布（宽度不溢出弹窗，避免横向滚动条） */
+.bm-confirm-item {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  text-align: left;
+  font: inherit;
+  font-size: 0.88rem;
+  background: none;
+  border: none;
+  border-top: 1px solid var(--hairline);
+  padding: 0.6rem 0.2rem;
+  margin: 0;
+  cursor: pointer;
+  color: var(--text);
+}
+.bm-confirm-item:hover { background: var(--code-bg); }
+#bm-confirm-del { color: #b0413e; }
+[data-theme="dark"] #bm-confirm-del { color: #d0776f; }
+
+/* ---------- 页脚（主题色条 + 备案号） ---------- */
+.site-footer {
+  text-align: center;
+  padding: calc(2 * var(--grid)) 0 1.4rem;
+  font-size: 0.72rem;
+  line-height: 1.75;
+  color: var(--muted);
+}
+
+/* 色条与备案号限定在和正文相同的列宽内 */
+.footer-inner {
+  width: var(--measure);
+  max-width: 92vw;
+  margin-inline: auto;
+}
+
+.site-footer a { color: inherit; }
+.site-footer a:hover { color: var(--text); }
+
+/* ---------- 首页（无稿纸背景，保持干净） ---------- */
+.home-page { background: none; }
+
+/* 头像在左、简介在右的两栏 */
+.hero {
+  display: flex;
+  align-items: flex-start;
+  gap: calc(1.5 * var(--grid));
+  margin-top: calc(0.9 * var(--grid));
+}
+
+.avatar {
+  width: 6.5rem;
+  height: 6.5rem;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+}
+
+/* 头像下方一条与头像等宽、居中的短横线 */
+.hero-left { flex: none; }
+.hero-left::after {
+  content: "";
+  display: block;
+  width: 6.5rem;
+  height: 2px;
+  background: var(--hairline);
+  margin: 0.9rem auto 0;
+}
+[data-theme="dark"] .avatar { outline: 1px solid var(--hairline); }
+
+.intro { color: var(--muted); font-size: 1rem; flex: 1; min-width: 0; }
+.intro p { margin: 0 0 calc(var(--grid) / 2); }
+.intro p:last-child { margin-bottom: 0; }
+
+/* 简介行尾的 11ty 小图标：行内、随字号缩放 */
+.ssg-icon img {
+  display: inline-block;           /* 覆盖 .page img 的块级规则 */
+  height: 1.15em;
+  width: auto;
+  vertical-align: -0.22em;
+  border-radius: 3px;
+  transition: opacity 0.2s;
+}
+.ssg-icon:hover img { opacity: 0.7; }
+
+/* 社交链接一行：小图标横排，mask 染色跟随主题文字色 */
+.social-links {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  margin-top: calc(0.8 * var(--grid));
+}
+.social-link { color: var(--muted); transition: color 0.2s; }
+.social-link:hover { color: var(--text); }
+.social-icon {
+  display: block;
+  width: 1.05rem;
+  height: 1.05rem;
+  background-color: currentColor;
+  -webkit-mask: var(--social-icon) no-repeat center / contain;
+  mask: var(--social-icon) no-repeat center / contain;
+}
+
+/* 时间线入口：放在合集分组之前 */
+.timeline-btn {
+  display: block;
+  width: 100%;
+  margin: calc(3 * var(--grid)) 0 0;
+  padding: 0.5rem 0;
+  border: 1px solid var(--btn-border);
+  text-align: center;
+  font-size: 0.92rem;
+  color: var(--muted);
+  transition: background-color 0.2s;
+}
+.timeline-btn span {               /* 文字单独包一层，悬浮只放大字不动按钮 */
+  display: inline-block;
+  transition: transform 0.2s;
+}
+.timeline-btn:hover {
+  background: var(--code-bg);      /* 只有底色高亮，文字颜色不变 */
+}
+.timeline-btn:hover span { transform: scale(1.06); }
+
+/* 合集：两列方块组，直角，悬浮轻效果 */
+.collection-list {
+  display: grid;
+  /* 1fr 的自动最小值是内容宽——nowrap 标题会把轨道撑爆顶出屏幕，
+     minmax(0,…) 强制轨道等宽，省略号才有宽度可截 */
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 1px;                      /* 细缝拼合成组，缝隙由分组底色透出 */
+  background: var(--hairline);
+  border: 1px solid var(--hairline);
+  margin: calc(1.5 * var(--grid)) 0 0;
+  padding: 0;
+  list-style: none;
+}
+.collection-list li {
+  padding: 0;
+  min-width: 0;                /* grid 项同样别按内容撑宽 */
+  display: flex;               /* 让链接撑满整个格子，标题换行时矮格不再露出底色 */
+  background: var(--bg);
+}
+.collection-list li::before { content: none; }
+
+.collection-list a {
+  flex: 1;
+  display: block;
+  padding: 0.8rem 1rem;
+  background: var(--bg);
+  font-size: 1.05rem;
+  /* 标题允许折行（长英文合集名在窄屏换行显示，格子随内容长高） */
+  transition: background-color 0.15s, padding-left 0.15s;
+}
+.collection-list a:hover {
+  background: var(--code-bg);
+  padding-left: 1.3rem;
+}
+
+/* 奇数个条目时，末尾的空隙格不再透出底色（会显成灰块），
+   用伪元素补一个与条目同底的空白盒子 */
+.collection-list:has(> li:last-child:nth-child(odd))::after {
+  content: "";
+  background: var(--bg);
+}
+
+/* 字体授权说明：贴近底部色带的小字注释 */
+.font-credit {
+  margin: calc(3 * var(--grid)) 0 0;
+  font-size: 0.72rem;
+  line-height: 1.7;
+  color: var(--muted);
+  text-align: center;
+}
+/* 首页：注释与色带之间只留 0.4rem（main 下边距清零，footer 上边距收到 0.4rem） */
+.page.home-page { padding-bottom: 0; }
+.page.home-page + .site-footer { padding-top: 1.5rem; }
+.font-credit a { color: var(--muted); text-decoration: underline; }
+.font-credit a:hover { color: var(--text); }
+
+/* ---------- 底部主题切换线：通栏 80vw（不随正文列宽），直角 ---------- */
+.theme-line {
+  display: flex;
+  width: 80vw;
+  height: 10.5px;
+  margin: 0 auto 1rem;
+  overflow: hidden;
+}
+[data-theme="dark"] .theme-line { outline: 1px solid var(--hairline); }
+
+.theme-chip {
+  flex: 1;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  opacity: 0.85;
+  transition: opacity 0.2s;
+}
+.theme-chip:hover { opacity: 1; }
+.theme-chip[data-set-theme="cream"] { background: var(--chip-cream); }
+.theme-chip[data-set-theme="green"] { background: var(--chip-green); }
+.theme-chip[data-set-theme="sky"] { background: var(--chip-sky); }
+.theme-chip[data-set-theme="purple"] { background: var(--chip-purple); }
+.theme-chip[data-set-theme="dark"] { background: var(--chip-dark); }
+
+/* ---------- 列表页（合集/时间线，稿纸之上的目录） ---------- */
+.page-title { margin-bottom: var(--grid); }
+
+.post-list { margin: 0; padding: 0; }
+
+.post-item {
+  /* 日期列宽（0.78rem 字号下的 6.2em，与下面 .post-item-date 同一份来源）
+     与列间距：缩略图那排要对齐标题左缘，得用它们算左缩进 */
+  --date-w: calc(6.2 * 0.78rem);
+  --col-gap: 1rem;
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;               /* 缩略图那一排换到标题下面 */
+  column-gap: var(--col-gap);
+  row-gap: 0;                    /* 换行后的间距由 .post-thumbs 的 margin 给 */
+  padding-left: 0;
+  margin-bottom: calc(var(--grid) / 3); /* 行距略小于半格 */
+}
+.post-item::before { content: none; }
+
+.post-item-date {
+  flex: none;
+  width: var(--date-w);         /* 固定宽度让各行日期右缘对齐，标题成列 */
+  text-align: right;
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-variant-numeric: tabular-nums;
+}
+
+/* 标题占满剩余行宽，超出部分按屏宽单行省略（不靠固定字数，宽窄屏都无缝填满） */
+.post-item-title {
+  min-width: 0;
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.post-item-title:hover { opacity: 0.65; }
+/* 置顶文章（front matter: pinned: true）：合集列表里标题加粗。
+   内置字体只有 400 字重，这里由浏览器合成加粗，视觉上足够区分。
+   只作用于合集页，时间线页不跟着变粗 */
+.collection-page .post-item.pinned .post-item-title { font-weight: 700; }
+
+/* ---------- 列表预览：标题下方一排缩略图 ----------
+   --thumb-s 是一格正方形的边长，也是整排的标尺；每张的实际宽高由过滤器算成
+   --w / --k（单位都是边长）写进 style，CSS 只做乘法，不用 JS 量宽度。
+   缩略图不落本地文件：OSS 构建用图片处理参数让 OSS 现场缩放，本地直接读原图。 */
+.post-thumbs {
+  --thumb-s: 4.5rem;
+  --thumb-gap: 4px;
+  align-self: flex-start;        /* 换行后别跟着标题的基线走 */
+  display: flex;
+  gap: var(--thumb-gap);
+  width: 100%;                   /* 独占一行 */
+  /* 左缘与标题对齐（缩进 = 日期列宽 + 列间距），右缘仍到条目末尾 */
+  padding-left: calc(var(--date-w) + var(--col-gap));
+  height: calc(var(--thumb-s) * var(--k, 1));
+  margin-top: calc(var(--grid) / 4);
+  overflow: hidden;              /* 取整误差不至于把最后一格挤出去 */
+}
+
+.post-thumb {
+  flex: none;
+  height: 100%;
+  width: calc(var(--thumb-s) * var(--w));
+  /* 五格正方形时居中裁切；其余情况格子比例就是图片自身比例，等于不裁 */
+  object-fit: cover;
+  background: var(--hairline);   /* 加载中/失败时留一层浅底，列表不出现空洞 */
+}
+
+/* 列宽收窄到 92vw 时整排跟着缩：五格正好铺满标题那一栏
+   （可用宽度 = 内容列 − 日期列缩进） */
+@media (max-width: 45.65rem) {
+  .post-thumbs {
+    --thumb-s: calc(
+      (92vw - var(--date-w) - var(--col-gap) - 4 * var(--thumb-gap)) / 5
+    );
+  }
+}
+
+/* ---------- 时间线（单年页）：列表与合集页同款式；
+   月份之间保留分隔线：细线 + 12 刻度，游标点落在当月刻度上 ---------- */
+.month { margin-bottom: 0; }
+.month .post-item:last-child { margin-bottom: 0; }
+
+.month-rule {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  align-items: start;
+  height: 10px;
+  border-top: 1px solid var(--hairline);
+  margin: calc(1.4 * var(--grid)) 0;
+}
+
+.month-rule .tick {
+  justify-self: end;               /* 落在各 1/12 段的右界 */
+  width: 1px;
+}
+
+.month-rule .tick.now {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--muted);
+  margin-top: -4px;                /* 圆点骑在线上 */
+  margin-right: -3px;              /* 对准刻度位置 */
+}
+
+/* 底部年份切换：相邻球之间短线段相连（不贯穿两侧），
+   球下标年份后两位，最新年在最左，当前年实心 */
+.year-nav { margin-top: calc(2.6 * var(--grid)); }
+.year-line {
+  display: flex;
+  justify-content: center;
+  gap: 2.4rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.year-ball { padding-left: 0; }    /* 去掉全局 li 的圆点缩进（否则整排偏右） */
+.year-ball::before { content: none; }  /* 全局 ul 圆点会在这里多出一颗“额外的点” */
+.year-ball:not(:last-child) a::after { /* 连到下一球球心的短线段 */
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 0.3rem;
+  width: calc(100% + 2.4rem);
+  height: 1px;
+  background: var(--hairline);
+  z-index: -1;                     /* 从球底下穿过，不压住球面 */
+}
+.year-ball a {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.42rem;
+  font-size: 0.72rem;
+  color: var(--muted);
+  transition: color 0.2s;
+}
+.year-ball a::before {            /* 圆球：底色遮住连接线 */
+  content: "";
+  order: -1;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  border: 1px solid var(--muted);
+  background: var(--bg);
+  transition: background-color 0.2s, border-color 0.2s;
+}
+.year-ball a:hover { color: var(--text); }
+.year-ball a:hover::before { border-color: var(--text); }
+.year-ball.now a { color: var(--text); }
+.year-ball.now a::before { background: var(--text); border-color: var(--text); }
+
+/* 视口右缘竖向进度条：1px 细线 + 可包一个汉字的圆点，随滚动滑动、可拖动跳转 */
+.tl-rail {
+  position: fixed;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 45vh;
+  width: 1px;
+  background: var(--hairline);
+  /* 落在右侧空白的中间：列右缘与视口右缘的中点；窄屏收进屏幕内，半圆点不超出 */
+  left: min(calc(75% + var(--measure) / 4), calc(100vw - 1.45rem));
+  z-index: 40;
+}
+.tl-rail::before {                /* 扩大的点击/拖动热区 */
+  content: "";
+  position: absolute;
+  top: -12px; bottom: -12px;
+  left: -16px; right: -16px;
+}
+.tl-dot {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  transform: translateX(-50%);
+  box-sizing: border-box;
+  width: 1.85rem;
+  height: 1.85rem;
+  border-radius: 50%;
+  border: 1px solid var(--hairline);
+  background: var(--bg);
+  color: var(--muted);
+  font-size: 0.92rem;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.tl-rail.dragging .tl-dot {
+  cursor: grabbing;
+  color: var(--text);
+  border-color: var(--muted);
+}
+
+.empty { color: var(--muted); }
+
+/* ---------- 图片查看器（lightbox）：全屏 dialog，图外高斯模糊 ---------- */
+.lightbox {
+  width: 100vw;
+  height: 100vh;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  overflow: hidden;
+  display: flex;              /* 作者样式会盖过 UA 的隐藏规则，下面显式补回 */
+}
+.lightbox:not([open]) { display: none; }
+.lightbox::backdrop {
+  background: var(--bar);          /* 与 TopBar 同源的磨砂底色（主题色 0.38），不是黑纱 */
+  -webkit-backdrop-filter: blur(6px) saturate(1.1);
+  backdrop-filter: blur(6px) saturate(1.1);
+}
+.lb-stage {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  touch-action: none;           /* 图片外空白处的手势也归查看器，浏览器不再整页缩放 */
+}
+.lb-img {
+  max-width: 94vw;
+  max-height: 92vh;
+  transform-origin: center;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  will-change: transform;
+}
+.lb-stage.lb-grabbing, .lb-stage.lb-grabbing .lb-img { cursor: grabbing; }
+.lb-cap {
+  position: absolute;
+  left: 0; right: 0; bottom: 0.9rem;
+  margin: 0;
+  text-align: center;
+  font-size: 0.85rem;
+  color: var(--muted);
+  pointer-events: none;
+}
+.lb-close {
+  position: absolute;
+  top: 0.7rem;
+  right: 1rem;
+  padding: 0.35rem 0.5rem;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-size: 0.95rem;
+  color: var(--muted);
+  cursor: pointer;
+  transition: color 0.2s;
+}
+.lb-close:hover { color: var(--text); }

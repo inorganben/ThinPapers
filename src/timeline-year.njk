@@ -1,0 +1,38 @@
+---
+layout: base.njk
+pagination:
+  data: collections.timelineYears
+  size: 1
+  alias: yr
+permalink: /timeline/{{ yr.year }}/index.html
+---
+<h1 class="page-title">时间线 · {{ yr.year }}</h1>
+
+{%- set groups = yr.items | byMonth %}
+{%- for g in groups %}
+{%- if not loop.first %}
+{# 月份分隔：细线 + 12 刻度，游标点落在当月刻度上 #}
+{%- set mm = g.items[0].data.date | getMonth %}
+<div class="month-rule">
+  {%- for i in range(1, 13) %}
+  <span class="tick{% if i == mm %} now{% endif %}"></span>
+  {%- endfor %}
+</div>
+{%- endif %}
+<section class="month">
+  {%- set posts = g.items %}
+  {%- set showDate = true %}
+  {% include "post-list.njk" %}
+</section>
+{%- endfor %}
+
+{# 底部年份切换：小球细线，标注年份后两位，最新年在最左（与按年分类的合集页共用） #}
+{%- set years = collections.timelineYears %}
+{%- set current = yr.year %}
+{%- set base = "/timeline/" %}
+{% include "year-nav.njk" %}
+
+{# 右缘竖向进度条：圆点大小能包住一个汉字（月份），随滚动滑动、可拖动快速跳转 #}
+<div class="tl-rail" id="tl-rail" aria-hidden="true"><span class="tl-dot" id="tl-dot"></span></div>
+
+<script src="{{ '/js/timeline.js' | url }}" defer></script>

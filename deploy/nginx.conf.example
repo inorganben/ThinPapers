@@ -1,0 +1,44 @@
+# ThinPapers 静态站 —— nginx 站点示例
+# 用法：改掉 server_name / 证书路径 / root，然后放进 /etc/nginx/conf.d/ 或 sites-available
+# 说明：整站是纯静态文件，构建产物在 _site/，同步到 root 指向的目录即可
+# HTTP 一律 301 到 HTTPS
+server {
+    listen 80;
+    listen [::]:80;
+    server_name example.com;
+    return 301 https://example.com$request_uri;
+}
+
+server {
+    listen 443 ssl;
+    listen [::]:443 ssl;
+    http2 on;
+    server_name example.com;
+
+    ssl_certificate     /etc/nginx/ssl/example.com/example.com.pem;
+    ssl_certificate_key /etc/nginx/ssl/example.com/example.com.key;
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_session_cache shared:SSL:10m;
+    ssl_session_timeout 1h;
+
+    root  /var/www/example;
+    index index.html;
+
+    # 目录式 URL（/posts/xxx/ -> index.html）；找不到就 404
+    location / {
+        try_files $uri $uri/ =404;
+    }
+
+    gzip on;
+    gzip_min_length 1024;
+    gzip_types text/css application/javascript image/svg+xml;
+
+    # 字体/图片/样式等长缓存；HTML 不缓存，保证更新即生效
+    location ~* \.(woff2|avif|jpg|jpeg|png|svg|css)$ {
+        expires 30d;
+        add_header Cache-Control "public";
+    }
+
+    # 证书/密钥防泄露类文件不服务
+    location ~ /\. { deny all; }
+}

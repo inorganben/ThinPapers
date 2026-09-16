@@ -1,0 +1,43 @@
+---
+layout: base.njk
+bodyClass: home
+---
+{# 首页不走 Markdown：它是全站交互最多的一页。简介直接写在这里，
+   头像换成 src/images/ 下你自己的图即可。 #}
+<section class="hero">
+  <div class="hero-left">
+    <img class="avatar" src="{{ '/images/logo-tp.png' | asset }}" alt="头像">
+  </div>
+  <div class="intro">
+    <p>这里是 ThinPapers，一个极简的中文写作模板。</p>
+    <p>文章放在 <code>src/posts/</code>，写 Markdown 就行；标题取正文第一个 <code>#</code> 一级标题，列表、合集、时间线都由构建期自动生成，不需要在 front matter 里重复填一遍。</p>
+    <p>这一页是 <code>src/index.njk</code>，这段简介换成你自己的话就好。</p>
+
+    <p>Font: <a href="https://github.com/lxgw/LxgwNeoZhiSong" rel="noopener" target="_blank" title="LXGW Neo ZhiSong GitHub">霞鹜新致宋</a></p>
+
+    <p>使用 11ty，希望 SSG 的构建不依赖模板语言，以及轻量 <a class="ssg-icon" href="https://www.11ty.dev" rel="noopener" target="_blank" title="Eleventy"><img src="{{ '/images/T3q0klu3ui-120.avif' | asset }}" alt="11ty"></a></p>
+
+    {# 社交链接：单色 svg 走 mask 染色，跟随主题文字色 #}
+    <div class="social-links">
+      {%- for s in site.social %}
+      <a class="social-link" href="{{ s.url }}" aria-label="{{ s.name }}" title="{{ s.name }}"{% if s.url %} target="_blank" rel="noopener"{% endif %}>
+        <span class="social-icon" style="--social-icon: url('{{ s.icon | asset }}')"></span>
+      </a>
+      {%- endfor %}
+    </div>
+  </div>
+</section>
+
+{%- set tlYears = collections.post | byYear %}
+<a class="timeline-btn" href="{{ (tlYears[0] and '/timeline/' + tlYears[0].year + '/' or '/timeline/') | url }}"><span>—— 时间线 ——</span></a>
+
+{# 合集列表：来自 src/_data/topics.json #}
+<ul class="collection-list">
+  {%- for t in topics %}
+  <li><a href="{{ ('/collections/' + t.slug + '/') | url }}">{{ t.name }}</a></li>
+  {%- endfor %}
+</ul>
+
+{# 中文字体用「霞鹜新致宋」（IPA Font License 1.0）：协议要求说明来源与如何换回原始字体。
+   不用这个字体的话，这一整段可以删掉。 #}
+<p class="font-credit">本站使用了「霞鹜新致宋」（基于 IPA Font License 1.0 发布）。<br>根据协议要求，若您希望恢复使用原始 IPA 字体，可从 <a href="https://moji.or.jp/ipafont/" rel="noopener">IPA 官网</a> 下载原始字体，并使用浏览器插件（如 Stylus 或 Custom Style Script）将本站的 font-family 替换为本地的 IPA 字体。<br>头像与 favicon 的小鸡插图来自 <a href="https://learnyouahaskell.github.io/starting-out.html" rel="noopener">《Learn You a Haskell for Great Good!》</a>，版权归原作者所有。</p>

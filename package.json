@@ -1,0 +1,23 @@
+{
+  "name": "thinpapers",
+  "version": "0.1.0",
+  "private": true,
+  "description": "ThinPapers — 基于 Eleventy 的极简中文个人站点模板",
+  "license": "MIT",
+  "scripts": {
+    "start": "eleventy --serve",
+    "build": "eleventy",
+    "build:oss": "eleventy",
+    "font": "node scripts/build-fonts.mjs",
+    "compress": "python3 scripts/compress.py",
+    "clipimg": "python3 scripts/clipimg.py"
+  },
+  "devDependencies": {
+    "@11ty/eleventy": "^3.0.0",
+    "cn-font-split": "^7.4.3",
+    "image-size": "^2.0.4",
+    "katex": "^0.18.7",
+    "markdown-it-texmath": "^1.0.0",
+    "shiki": "^4.4.3"
+  }
+}

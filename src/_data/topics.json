@@ -1,0 +1,6 @@
+[
+  { "slug": "notes", "name": "笔记" },
+  { "slug": "reading", "name": "读书" },
+  { "slug": "shufa", "name": "書法" },
+  { "slug": "daily", "name": "日常", "newestFirst": true, "byYear": true }
+]

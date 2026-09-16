@@ -1,0 +1,17 @@
+<div class="theme-line">
+  {%- for t in site.themes %}
+  <button class="theme-chip" data-set-theme="{{ t.id }}" aria-label="切换到{{ t.name }}主题"></button>
+  {%- endfor %}
+</div>
+<script>
+  (function () {
+    var chips = document.querySelectorAll("[data-set-theme]");
+    chips.forEach(function (chip) {
+      chip.addEventListener("click", function () {
+        var id = chip.getAttribute("data-set-theme");
+        document.documentElement.setAttribute("data-theme", id);
+        localStorage.setItem("theme", id);
+      });
+    });
+  })();
+</script>
